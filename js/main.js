@@ -186,11 +186,11 @@ Akshat,akshat23,aksims2302723,289126.45,2674769.0,2963895.45`;
   function loadData(rows) {
     RAW = rows.filter((r) => r && r.Name).map(normalizeRow);
     currentPage = 1;
-    document.getElementById("metaN").textContent = full(RAW.length);
-    document.getElementById("metaDate").textContent = new Date().toLocaleString(
-      undefined,
-      { dateStyle: "medium", timeStyle: "short" },
-    );
+    // document.getElementById("metaN").textContent = full(RAW.length);
+    // document.getElementById("metaDate").textContent = new Date().toLocaleString(
+    //   undefined,
+    //   { dateStyle: "medium", timeStyle: "short" },
+    // );
     renderAll();
   }
 
