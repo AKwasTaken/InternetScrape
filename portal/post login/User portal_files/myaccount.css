@@ -1,0 +1,105 @@
+/* MyAccount Page level CSS  */
+.myacc-right-pnl {
+  margin-left: 190px;
+}
+
+.myacc-left-pnl {
+  background: #00203E;
+  width: 191px;
+  height: 100%;
+  position: fixed;
+  z-index: 2;
+}
+
+.myacc-cp-btn {
+  background: #1360A0 !important;
+  color: #fff;
+  border: #285e8e 1px solid;
+}
+
+.myacc-cp-btn:hover {
+  background: #2186CF !important;
+}
+
+.myacc-logo {
+  background: url("/images/logo/group-small-on-dark.png?a=21.0.1.277") no-repeat scroll 0 0 transparent;
+  height: 32px;
+  width: 160px;
+  margin: 5px 4px 4px 25px;
+}
+
+.myacc-logo-div {
+  font-size: 24px;
+  font-weight: bold;
+  color: #FFF;
+  line-height: 1.5;
+}
+
+.myacc-topbar {
+  background: #FFF;
+  height: 37px;
+  text-align: center;
+  line-height: 1.7;
+  font-size: 20px;
+  color: #3073AB;
+  font-family: SophosSansMedium;
+}
+
+.myacc-menu-border {
+  border-top: 1px solid #888;
+}
+
+.myacc-help {
+  float: right;
+  padding: 5px 15px 0 0;
+  vertical-align: middle;
+  line-height: 1.5;
+  font-size: 25px;
+  display: none;
+}
+
+.cp-sec-content-div {
+  background: #fff;
+  border: #dcddde 1px solid;
+  border-radius: 5px;
+  width: 19%;
+  min-width: 100px;
+  height: 45px;
+  padding: 15px;
+  color: #343434;
+  font-family: SophosSansMedium;
+  overflow: visible;
+  float: left;
+  margin-top: 12px;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.cp-sec-content .bookm_icon {
+  min-width: 45px;
+  width: 45px;
+  height: 100%;
+  position: relative;
+  text-align: center;
+  float: left;
+}
+
+.cp-sec-content .bookm_connect {
+  font-size: 13px;
+  color: #428bca;
+  text-align: center;
+}
+
+.cp-sec-content .bookm_text {
+  margin-left: 55px;
+  width: auto;
+  color: #428bca;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+#bookmarkDIV {
+  max-height: 280px;
+  overflow-y: auto;
+}

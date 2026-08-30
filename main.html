@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bandwidth Usage Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="js/papaparse.min.js"></script>
+    <script src="js/chart.umd.min.js"></script>
+    <script src="js/d3.min.js"></script>
+
+    <link href="css/style.css" rel="stylesheet" />
+
+    <script src="js/data.js" defer></script>
+    <script src="js/main.js" defer></script>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <p class="kicker">Data report - generated client-side</p>
+        <h1>IISER-TVM B23 Bandwidth Usage</h1>
+        <p class="meta">
+          <b id="metaN">-</b> accounts &nbsp;·&nbsp; generated
+          <b id="metaDate">-</b>
+        </p>
+      </header>
+
+      <section id="summary">
+        <h2><span class="num">1</span>Summary statistics</h2>
+        <table class="stat-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>N</th>
+              <th>Mean</th>
+              <th>Median</th>
+              <th>Std. dev.</th>
+              <th>Min</th>
+              <th>Max</th>
+              <th>Sum</th>
+            </tr>
+          </thead>
+          <tbody id="statsTableBody"></tbody>
+        </table>
+        <ul class="notes">
+          <li>
+            Pearson correlation, upload vs. download:
+            <span id="corrInline">-</span>
+          </li>
+          <li>
+            Gini coefficient, total traffic: <span id="giniInline">-</span>
+          </li>
+          <li>
+            Accounts with zero recorded traffic: <span id="ghostInline">-</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="topusers">
+        <h2><span class="num">2</span>Top consumers</h2>
+        <p class="lede">
+          The ten accounts responsible for the largest share of total traffic.
+        </p>
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th class="rank-col">#</th>
+              <th class="name-col">Name</th>
+              <th>Username</th>
+              <th>Upload</th>
+              <th>Download</th>
+              <th>Total traffic</th>
+              <th>Share of total</th>
+            </tr>
+          </thead>
+          <tbody id="topTableBody"></tbody>
+        </table>
+      </section>
+
+      <section id="figures">
+        <h2><span class="num">3</span>Figures</h2>
+
+        <figure>
+          <div class="fig-grid three">
+            <div>
+              <div class="panel-label">Upload</div>
+              <div class="chart-box short">
+                <canvas id="shareUploadChart"></canvas>
+              </div>
+            </div>
+            <div>
+              <div class="panel-label">Download</div>
+              <div class="chart-box short">
+                <canvas id="shareDownloadChart"></canvas>
+              </div>
+            </div>
+            <div>
+              <div class="panel-label">Total traffic</div>
+              <div class="chart-box short">
+                <canvas id="shareTotalChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <figcaption>
+            <b>Figure 1.</b> Top 10 accounts by each metric, against the
+            combined remainder ("other"). Replaces a per-user pie chart, which
+            stops being legible past a few dozen accounts.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <div class="fig-head">
+            <div class="fig-controls">
+              Showing top
+              <input
+                type="range"
+                id="topNRange"
+                min="5"
+                max="40"
+                value="15"
+              /><span id="topNLabel">15</span> of N
+            </div>
+          </div>
+          <div class="chart-box tall"><canvas id="barChart"></canvas></div>
+          <figcaption>
+            <b>Figure 2.</b> Accounts ranked by total traffic, highest to
+            lowest.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <div class="fig-head">
+            <span class="stat-pill"
+              >r = <b id="corrValue">-</b> &nbsp;·&nbsp; R² =
+              <b id="r2Value">-</b></span
+            >
+          </div>
+          <div class="chart-box tall"><canvas id="scatterChart"></canvas></div>
+          <figcaption>
+            <b>Figure 3.</b> Upload against download per account. Marker area is
+            proportional to total traffic; dashed line is the
+            ordinary-least-squares fit.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <div class="fig-head">
+            <div class="chip-group" id="histChips">
+              <button class="chip active" data-metric="Upload">Upload</button>
+              <button class="chip" data-metric="Download">Download</button>
+              <button class="chip" data-metric="Total traffic">Total</button>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="histChart"></canvas></div>
+          <figcaption>
+            <b>Figure 4.</b> Distribution of
+            <span id="histCaptionMetric">upload</span> volume across accounts,
+            in 12 equal-width bins.
+          </figcaption>
+        </figure>
+
+        <figure>
+          <div class="chart-box tall">
+            <svg
+              id="boxplotSvg"
+              viewBox="0 0 560 320"
+              preserveAspectRatio="xMidYMid meet"
+              style="width: 100%; height: 100%"
+            ></svg>
+          </div>
+          <figcaption>
+            <b>Figure 5.</b> Spread and outliers for each metric. Boxes span the
+            interquartile range (25th-75th percentile); whiskers extend to the
+            most extreme value within 1.5×IQR of the box; points beyond that are
+            flagged as outliers.
+          </figcaption>
+        </figure>
+
+        <figure class="lorenz-figure">
+          <div class="lorenz-layout">
+            <svg
+              id="lorenzSvg"
+              viewBox="0 0 520 300"
+              preserveAspectRatio="xMidYMid meet"
+            ></svg>
+            <div class="gini-readout">
+              <div>
+                <div class="gini-big" id="giniValue">-<span>/ 1.00</span></div>
+              </div>
+              <div class="gini-scale">
+                <div class="gini-marker" id="giniMarker" style="left: 0%"></div>
+              </div>
+              <div class="gini-legend">
+                <span>Even</span><span>Concentrated</span>
+              </div>
+              <p id="giniReadout"></p>
+            </div>
+          </div>
+          <figcaption>
+            <b>Figure 6.</b> Lorenz curve for total traffic - cumulative share
+            of traffic (y) held by the cumulative share of accounts (x), sorted
+            ascending. The diagonal marks perfectly equal usage; the further the
+            curve bows from it, the more concentrated usage is. Gini coefficient
+            is twice the area between the two.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="dataset">
+        <h2><span class="num">4</span>Full dataset</h2>
+        <div class="table-controls">
+          <label class="search-box">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Filter by name or username"
+            />
+          </label>
+          <label class="toggle"
+            ><input type="checkbox" id="showPwToggle" /> Show passwords</label
+          >
+          <button class="text-btn" id="downloadCsvBtn">
+            Export filtered CSV
+          </button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr id="tableHeadRow"></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span class="count" id="rowCount">-</span>
+          <div class="pager">
+            <button id="prevPage">‹</button>
+            <span id="pageLabel">1 / 1</span>
+            <button id="nextPage">›</button>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          Reads <code>data.csv</code> from the same folder at load time and
+          computes everything above in-browser - nothing is sent to a server.
+          This file contains plaintext credentials, so treat it accordingly if
+          the page is public. Note: opening this file directly
+          (<code>file://</code>) blocks the local CSV read in most browsers;
+          serving the folder (e.g. <code>python3 -m http.server</code>, or any
+          static host) resolves it.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
