@@ -248,54 +248,71 @@ Akshat,akshat23,aksims2302723,289126.45,2674769.0,2963895.45`;
       `<tr><td colspan="7"><div class="empty-hint">No data.</div></td></tr>`;
   }
 
-  /* ---------------- Figure 1: share by metric, small multiples ---------------- */
+  /* ---------------- Figure 1: share by metric (Doughnut) ---------------- */
   function renderShareCharts(data) {
     const ids = {
       Upload: "shareUploadChart",
       Download: "shareDownloadChart",
       "Total traffic": "shareTotalChart",
     };
+
+    // Color palette that stays legible against the theme
+    const sliceColors = [
+      "#3D5A80", "#C97A46", "#4F7A5E", "#B8863B", "#A6444B", 
+      "#6172A8", "#407455", "#8B8678", "#D4A373", "#588157", 
+      "#D8D3C4" // "Other"
+    ];
+
     NUM_COLS.forEach((metric) => {
       const sorted = [...data].sort((a, b) => b[metric] - a[metric]);
-      const top10 = sorted.slice(0, 10);
-      const otherSum = sum(sorted.slice(10).map((d) => d[metric]));
-      const labels = top10
-        .map((d) => d.Username)
-        .concat(otherSum > 0 ? ["Other"] : []);
-      const values = top10
-        .map((d) => d[metric])
-        .concat(otherSum > 0 ? [otherSum] : []);
+      const top5 = sorted.slice(0, 5); // Keep top 5 to prevent unreadable micro-slices
+      const otherSum = sum(sorted.slice(5).map((d) => d[metric]));
+      
+      const labels = top5.map((d) => d.Username).concat(otherSum > 0 ? ["Other"] : []);
+      const values = top5.map((d) => d[metric]).concat(otherSum > 0 ? [otherSum] : []);
+      const totalMetric = sum(values) || 1;
+
       const key = "share_" + metric;
       destroy(key);
       const ctx = document.getElementById(ids[metric]);
       if (!ctx) return;
+
       charts[key] = new Chart(ctx, {
-        type: "bar",
+        type: "doughnut",
         data: {
           labels,
           datasets: [
             {
               data: values,
-              backgroundColor: labels.map((l) =>
-                l === "Other" ? "#D8D3C4" : METRIC_COLOR[metric],
-              ),
+              backgroundColor: sliceColors.slice(0, labels.length),
+              borderWidth: 2,
+              borderColor: "#ffffff",
+              hoverOffset: 6
             },
           ],
         },
         options: {
-          indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
+          cutout: "60%",
           plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: (c) => full(c.raw) } },
-          },
-          scales: {
-            x: {
-              grid: { color: CHART_GRID },
-              ticks: { callback: (v) => abbr(v) },
+            legend: {
+              display: true,
+              position: "bottom",
+              labels: {
+                boxWidth: 10,
+                padding: 10,
+                font: { size: 10, family: "'IBM Plex Mono', monospace" }
+              }
             },
-            y: { grid: { display: false }, ticks: { font: { size: 9.5 } } },
+            tooltip: {
+              callbacks: {
+                label: (c) => {
+                  const pct = ((c.raw / totalMetric) * 100).toFixed(1);
+                  return ` ${c.label}: ${abbr(c.raw)} (${pct}%)`;
+                }
+              }
+            },
           },
         },
       });

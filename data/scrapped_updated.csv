@@ -1,4 +1,4 @@
-window.MY_REAL_DATA = `Name,Username,Password,Upload,Download,Total traffic
+Name,Username,Password,Upload,Download,Total traffic
 Aanandee Das,aanandee23,aanims2300323,254678.06,1472685.94,1727364.0
 Abdul Rasheed P,abdul23,abdims2300423,91913.34,1344664.94,1436578.28
 Amal Abdulla C,abdulla23,amaims2302923,146976.9,1381131.68,1528108.58
@@ -203,4 +203,4 @@ Vidhi Kishor Sayam,vidhi23,vidims2329023,358972.78,1610346.59,1969319.37
 Vivek Kumar,vivek23,vivims2329223,126630.81,1163419.35,1290050.16
 Vivek Kumar,vivekkumar23,vivims2329223,0.0,0.0,0.0
 Vyshna K P,vyshna23,vysims2329423,143201.56,1106200.41,1249401.97
-Yashika Tidke,yashika23,yasims2329523,117847.71,1062709.39,1180557.1`;
+Yashika Tidke,yashika23,yasims2329523,117847.71,1062709.39,1180557.1
