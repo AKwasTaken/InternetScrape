@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Purge jsDelivr CDN
         run: |
-          curl -i https://jsdelivr.net
+          curl -s -o /dev/null -w "%{http_code}" https://jsdelivr.net
